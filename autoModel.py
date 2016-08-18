@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 
-def judgeNillDict():
-	pass
+def judgeNillDict(dictionary):
+	isExist = False
+	for key,value in dictionary.items():
+		if isinstance(value, dict) or isinstance(value, list):
+			if value:
+				isExist = True
+				break
+
+	return isExist
 
 def parseJSON(dictionary):
 	allKeys = []
@@ -10,19 +17,29 @@ def parseJSON(dictionary):
 	for key,value in dictionary.items():
 		
 		if isinstance(value, list):
-			for json in value:
-				allKeys.append(parseJSON(json))
+			if len(value) > 0:
+				allKeys.append({key:parseJSON(value[0])})
 
 		elif isinstance(value, dict):
-			allKeys.append(parseJSON(value))
+			allKeys.append({key:parseJSON(value)})
 
-		keys.append(key)
+		# keys.append(key)
+	keys = dictionary.keys()
 	allKeys.append(keys)
 
 	return allKeys
 
-#/Users/xiexiaolong1/Desktop/zy.txt
-#/Users/xiexiaolong1/pythonCode/json.txt
-with open('/Users/xiexiaolong1/Desktop/zy.txt','r') as jsonString:
+path1 = '/Users/xiexiaolong1/Desktop/zy.txt'
+path2 = '/Users/xiexiaolong1/pythonCode/json.txt'
+with open(path1,'r') as jsonString:
 	dic = json.load(jsonString)
-	print(parseJSON(dic))
+	# print(judgeNillDict(dic))
+	allKeys = parseJSON(dic)
+
+	for value in allKeys:
+		# print(type(value))
+		if  isinstance(value, dict):
+			print(value)
+		else :
+			print(value[0])
+
