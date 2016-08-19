@@ -7,3 +7,6 @@
  *  fileName = 'ContactModel' `#新建.h .m 文件名`
  *  mark = 'm_' `#给字段加标识`
  *  className = 'Model' `#模型类名(需要手动修改)`
+ 
+ >>用法:打开终端-进入autoModel.py所在的目录-执行`python3 autoModel.py`
+ ***前提要安装python3，并完成以上配置***
