@@ -37,3 +37,28 @@
 	}, 
 	dict_keys(['data', 'msg', 'code'])
 ]
+
+
+{
+	'data': [
+				{
+					'rows': [
+								{
+								'commentVos': 
+									[
+										['launcherName', 'launcherHeadurl', 'commentVos', 'type', 'pathList', 'delFlag', 'comment', 'launcherTime', 'launcherRname', 'moodId', 'id']
+									]
+								}, 
+								{
+								'pathList': 
+									[
+										['thumbPath', 'path']
+									]
+								}, 
+								['stageName', 'stageId', 'commentVos', 'creatorName', 'description', 'pathList', 'delFlag', 'decoAddress', 'createTime', 'stageStatus', 'id']
+							]
+				}, 
+				['total', 'rows']
+			]
+}
+['data', 'code', 'msg']
