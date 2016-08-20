@@ -73,8 +73,8 @@ def getKeys(data):
 
 		if len(keys) > 0:
 			writeToFile(keys)
-			print(keys)
-			print('--------------------')
+			# print(keys)
+			# print('--------------------')
 
 	elif isinstance(data, dict):
 		for key,value in data.item():
@@ -135,10 +135,19 @@ def createFiles():
 
 #程序入口
 with open(path1,'r') as jsonString:
-	dic = json.load(jsonString)
-	# print(judgeNillDict(dic))
-	allKeys = parseJSON(dic)
-	#创建文件
-	createFiles()
-	# print(allKeys)
-	getKeys(allKeys)
+	dic = {}
+	try:
+		print('正在从' + path1 + '获取json数据...')
+		dic = json.load(jsonString)
+		print('正在解析并创建文件...')
+		allKeys = parseJSON(dic)
+		#创建文件
+		createFiles()
+		# print(allKeys)
+		getKeys(allKeys)
+
+		print('文件创建完成!请到路径:' + path + ' 获取。')
+	except ValueError:
+		print('Json解析错误，请校验Json格式是否正确：http://tool.oschina.net/codeformat/json')
+
+
