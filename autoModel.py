@@ -3,7 +3,7 @@
 #configuration begin
 
 outPutPath = '/Users/xiexiaolong/Desktop/python/' #.h .m输出路径
-jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/zy.txt' #json数据文件路径
+jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/json.txt' #json数据文件路径
 
 fileName = 'ContactModel' #新建.h .m 文件名
 mark = 'm_' #给字段加标识
