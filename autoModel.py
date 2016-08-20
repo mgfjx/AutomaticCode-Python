@@ -2,8 +2,8 @@
 
 #configuration begin
 
-path = '/Users/xiexiaolong1/Desktop/python/' #.h .m输出路径
-path1 = '/Users/xiexiaolong1/Desktop/python/json.txt' #json数据文件路径
+path = '/Users/xiexiaolong/Desktop/python/' #.h .m输出路径
+path1 = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/zy.txt' #json数据文件路径
 
 fileName = 'ContactModel' #新建.h .m 文件名
 mark = 'm_' #给字段加标识
@@ -43,10 +43,12 @@ def parseJSON(dictionary):
 	for key,value in dictionary.items():
 		
 		if isinstance(value, list):
+			key = 'List-' + key
 			if len(value) > 0:
 				allKeys.append({key:parseJSON(value[0])})
 
 		elif isinstance(value, dict):
+			key = 'List-' + key
 			allKeys.append({key:parseJSON(value)})
 
 		keys.append(key)
@@ -81,9 +83,14 @@ def getKeys(data):
 def writeToFile(array):
 	#.h文件写入
 	with open(path + fileName + '.h', 'a') as writeFile:
-		writeFile.write('@interface ' + className + ' : NSObject//自定义:类名需手动修改\n\n')
+		writeFile.write('@interface ' + '<#' + className + '#>' + ' : NSObject//自定义:类名需手动修改\n\n')
 		for value in array:
-			string = '@property (nonatomic, strong) NSString *' + mark + value + ';\n'
+			string = ''
+			if value.startswith('List-'):
+				value = value.replace('List-','')
+				string = '@property (nonatomic, strong) NSArray  *' + mark + value + ';\n'
+			else:
+				string = '@property (nonatomic, strong) NSString *' + mark + value + ';\n'
 			writeFile.write(string)
 
 		writeFile.write('\n- (instancetype)initDataWith:(NSDictionary *)dicttionary;\n')
@@ -91,11 +98,24 @@ def writeToFile(array):
 
 	#.m文件写入
 	with open(path + fileName + '.m', 'a') as writeFile:
-		writeFile.write('@implementation ' + className + '//自定义:类名需手动修改\n\n')
+		writeFile.write('@implementation ' + '<#' + className + '#>' + '//自定义:类名需手动修改\n\n')
 		string = '- (instancetype)initDataWith:(NSDictionary *)dicttionary{\n\tself = [super init];\n\tif (self) {\n\n'
 		writeFile.write(string)
+		string = ''
 		for value in array:
-			string = '\t\tself.' + mark + value + ' = NSStringFormat(dicttionary[@"' + value + '"]);\n'
+			if value.startswith('List-'):
+				value = value.replace('List-','')
+				string = '''
+        NSMutableArray *array = [NSMutableArray array];
+        NSArray *list = dicttionary[@"''' + value +'''"];
+        for (NSDictionary *dict in list) {
+            <#当前数组元素对应类#> *model = [[<#当前数组元素对应类#> alloc] initDataWith:dict];
+            [array addObject:model];
+        }
+        self.''' + mark + value + ''' = [array copy];\n\n'''
+				# string = '\t\tself.' + mark + value + ' = (NSArray *)dicttionary[@"' + value + '"];\n'
+			else:
+				string = '\t\tself.' + mark + value + ' = NSStringFormat(dicttionary[@"' + value + '"]);\n'
 			writeFile.write(string)
 		string = '\n\t}\n\treturn self;\n\n}'
 		writeFile.write(string)
