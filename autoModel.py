@@ -2,8 +2,8 @@
 
 #configuration begin
 
-path = '/Users/xiexiaolong/Desktop/python/' #.h .m输出路径
-path1 = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/zy.txt' #json数据文件路径
+outPutPath = '/Users/xiexiaolong/Desktop/python/' #.h .m输出路径
+jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/zy.txt' #json数据文件路径
 
 fileName = 'ContactModel' #新建.h .m 文件名
 mark = 'm_' #给字段加标识
@@ -82,7 +82,7 @@ def getKeys(data):
 
 def writeToFile(array):
 	#.h文件写入
-	with open(path + fileName + '.h', 'a') as writeFile:
+	with open(outPutPath + fileName + '.h', 'a') as writeFile:
 		writeFile.write('@interface ' + '<#' + className + '#>' + ' : NSObject//自定义:类名需手动修改\n\n')
 		for value in array:
 			string = ''
@@ -97,7 +97,7 @@ def writeToFile(array):
 		writeFile.write('\n@end\n\n\n')
 
 	#.m文件写入
-	with open(path + fileName + '.m', 'a') as writeFile:
+	with open(outPutPath + fileName + '.m', 'a') as writeFile:
 		writeFile.write('@implementation ' + '<#' + className + '#>' + '//自定义:类名需手动修改\n\n')
 		string = '- (instancetype)initDataWith:(NSDictionary *)dicttionary{\n\tself = [super init];\n\tif (self) {\n\n'
 		writeFile.write(string)
@@ -123,21 +123,21 @@ def writeToFile(array):
 
 def createFiles():
 	#.h file
-	with open(path + fileName + '.h', 'a') as writeFile:
+	with open(outPutPath + fileName + '.h', 'a') as writeFile:
 		writeFile.write(explanation)
 		writeFile.write('#import <Foundation/Foundation.h>\n\n')
 
 	#.m file
-	with open(path + fileName + '.m', 'a') as writeFile:
+	with open(outPutPath + fileName + '.m', 'a') as writeFile:
 		writeFile.write(explanation)
 		writeFile.write('#import "' + fileName + '.h"\n')
 		writeFile.write('#define NSStringFormat(x) [NSString stringWithFormat:@"%@",(x)]\n\n')
 
 #程序入口
-with open(path1,'r') as jsonString:
+with open(jsonPath,'r') as jsonString:
 	dic = {}
 	try:
-		print('正在从' + path1 + '获取json数据...')
+		print('正在从' + jsonPath + '获取json数据...')
 		dic = json.load(jsonString)
 		print('正在解析并创建文件...')
 		allKeys = parseJSON(dic)
@@ -146,8 +146,8 @@ with open(path1,'r') as jsonString:
 		# print(allKeys)
 		getKeys(allKeys)
 
-		print('文件创建完成!请到路径:' + path + ' 获取。')
+		print('文件创建完成!请到路径:' + outPutPath + ' 获取。')
 	except ValueError:
-		print('Json解析错误，请校验Json格式是否正确：http://tool.oschina.net/codeformat/json')
+		print('Json解析错误，请校验Json格式是否正确:http://tool.oschina.net/codeformat/json')
 
 
