@@ -2,10 +2,10 @@
 
 #configuration begin
 
-outPutPath = '/Users/xiexiaolong/Desktop/python/' #.h .m输出路径
-jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/json.txt' #json数据文件路径
+outPutPath = '' #.h .m输出路径
+jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/json.txt' #json数据文件路径,不填默认输出到当前用户桌面
 
-fileName = 'ContactModel' #新建.h .m 文件名
+fileName = 'Model' #新建.h .m 文件名
 mark = 'm_' #给字段加标识
 className = 'Model' #模型类名(需要手动修改)
 
@@ -14,8 +14,8 @@ explanation = '''
  *  autoModel.py
  *  用python写的根据json数据自动创建.h和.m文件脚本，使用前请配置#configuration 中间的全局变量:
  *  eg:
- *  path = '/Users/xiexiaolong1/Desktop/python/' (#h .m输出路径)
- *  path1 = '/Users/xiexiaolong1/Desktop/python/json.txt' (#json数据文件路径)
+ *  outPutPath = '/Users/xiexiaolong1/Desktop/python/' (#h .m输出路径,不填默认输出到当前用户桌面)
+ *  jsonPath = '/Users/xiexiaolong1/Desktop/python/json.txt' (#json数据文件路径)
  *  fileName = 'ContactModel' (#新建.h .m 文件名)
  *  mark = 'm_' (#给字段加标识)
  *  className = 'Model' (#模型类名(需要手动修改))
@@ -26,6 +26,7 @@ explanation = '''
 #configuration end
 
 import json
+import os
 def judgeNillDict(dictionary):
 	isExist = False
 	for key,value in dictionary.items():
@@ -82,7 +83,7 @@ def getKeys(data):
 
 def writeToFile(array):
 	#.h文件写入
-	with open(outPutPath + fileName + '.h', 'a') as writeFile:
+	with open(os.path.join(outPutPath, fileName + '.h'), 'a') as writeFile:
 		writeFile.write('@interface ' + '<#' + className + '#>' + ' : NSObject//自定义:类名需手动修改\n\n')
 		for value in array:
 			string = ''
@@ -97,7 +98,7 @@ def writeToFile(array):
 		writeFile.write('\n@end\n\n\n')
 
 	#.m文件写入
-	with open(outPutPath + fileName + '.m', 'a') as writeFile:
+	with open(os.path.join(outPutPath, fileName + '.m'), 'a') as writeFile:
 		writeFile.write('@implementation ' + '<#' + className + '#>' + '//自定义:类名需手动修改\n\n')
 		string = '- (instancetype)initDataWith:(NSDictionary *)dicttionary{\n\tself = [super init];\n\tif (self) {\n\n'
 		writeFile.write(string)
@@ -122,13 +123,16 @@ def writeToFile(array):
 		writeFile.write('\n@end\n\n\n')
 
 def createFiles():
+	global outPutPath
+	if outPutPath == '':
+		outPutPath = os.path.join(os.environ['HOME'], 'Desktop')
 	#.h file
-	with open(outPutPath + fileName + '.h', 'a') as writeFile:
+	with open(os.path.join(outPutPath, fileName + '.h'), 'a') as writeFile:
 		writeFile.write(explanation)
 		writeFile.write('#import <Foundation/Foundation.h>\n\n')
 
 	#.m file
-	with open(outPutPath + fileName + '.m', 'a') as writeFile:
+	with open(os.path.join(outPutPath, fileName + '.m'), 'a') as writeFile:
 		writeFile.write(explanation)
 		writeFile.write('#import "' + fileName + '.h"\n')
 		writeFile.write('#define NSStringFormat(x) [NSString stringWithFormat:@"%@",(x)]\n\n')
