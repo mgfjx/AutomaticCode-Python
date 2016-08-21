@@ -11,3 +11,4 @@
  
  >>用法:打开终端-进入autoModel.py所在的目录-执行`python3 autoModel.py`
  ***前提要安装python3，并完成以上配置***
+ ![gif](ep.gif)
