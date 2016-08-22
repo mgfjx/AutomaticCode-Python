@@ -3,7 +3,7 @@
 #configuration begin
 
 outPutPath = '' #.h .m输出路径
-jsonPath = '/Users/xiexiaolong/pythonCode/AutomaticCode-Python/json.txt' #json数据文件路径,不填默认输出到当前用户桌面
+jsonPath = '/Users/xiexiaolong1/pythonCode/json.txt' #json数据文件路径,不填默认输出到当前用户桌面
 
 fileName = 'Model' #新建.h .m 文件名
 mark = 'm_' #给字段加标识
@@ -141,17 +141,17 @@ def createFiles():
 with open(jsonPath,'r') as jsonString:
 	dic = {}
 	try:
-		print('正在从' + jsonPath + '获取json数据...')
+		print('\033[1;32m' + '正在从' + jsonPath + '获取json数据...' + '\033[0m')
 		dic = json.load(jsonString)
-		print('正在解析并创建文件...')
+		print('\033[1;32m' + '正在解析并创建文件...' + '\033[0m')
 		allKeys = parseJSON(dic)
 		#创建文件
 		createFiles()
 		# print(allKeys)
 		getKeys(allKeys)
 
-		print('文件创建完成!请到路径:' + outPutPath + ' 获取。')
+		print('\033[1;32m' + '文件创建完成!请到路径:' + outPutPath + ' 获取。' + '\033[0m')
 	except ValueError:
-		print('Json解析错误，请校验Json格式是否正确:http://tool.oschina.net/codeformat/json')
+		print('\033[1;31m' + 'Json解析错误，请校验Json格式是否正确:http://tool.oschina.net/codeformat/json' + '\033[0m')
 
 
