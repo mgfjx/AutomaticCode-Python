@@ -3,6 +3,7 @@ import os,sys
 import subprocess
 import requests
 import time
+import json
 
 #configuration for iOS build setting
 CONFIGURATION = "Release"
@@ -15,6 +16,7 @@ BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2"
 API_KEY = "700ffc367a1d86863d40370c3e95da66"
 
+#上传到蒲公英代码托管
 def uploadToPgyer(ipaPath):
 	print('ipaPath:'+ipaPath)
 	files = {'file':open(ipaPath,'rb')}
@@ -24,14 +26,24 @@ def uploadToPgyer(ipaPath):
 	try:
 		r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
 		if r.status_code == requests.codes.ok:
-			print('\033[32m' + '上传完成' + '\033[0m')
+			result = r.json()
+			parserReturnData(result)
 		else:
 			print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
 	except :
 		print('\033[31m' + '请检查网络！' + '\033[0m')
 
+#解析上传返回数据
+def parserReturnData(jsonResult):
+	resultCode = jsonResult['code']
+	if resultCode == 0:
+		downUrl = BASE_URL + '/' + jsonResult['data']['appShortcutUrl']
+		print('\033[32m' + '上传完成,下载地址:' + downUrl + '\033[0m')
+	else:
+		print ('\033[31m' + '上传失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
+		print(jsonResult)
 
-
+#打包.xcodeproj工程
 def buildProject(ProjectName):
 	isBuilded = os.system('xcodebuild -project %s.xcodeproj -target %s -configuration Release' % (ProjectName, ProjectName));
 	fileName = ProjectName + getNowTime() + '.ipa'
@@ -60,6 +72,7 @@ def cur_file_dir():
      elif os.path.isfile(path):
          return os.path.dirname(path)
 
+#获取当前时间
 def getNowTime():
 	return time.strftime('%Y-%m-%d-%H-%M-%S',time.localtime(time.time()))
 
