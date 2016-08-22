@@ -9,7 +9,7 @@ CONFIGURATION = "Release"
 SDK = "iphoneos"
 
 #configuration for 蒲公英
-AlowUploadToPgyer = 0 #值为1表示上传到蒲公英，为0亦然
+AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2"
@@ -19,7 +19,7 @@ def uploadToPgyer(ipaPath):
 	print('ipaPath:'+ipaPath)
 	files = {'file':open(ipaPath,'rb')}
 	headers = {'enctype':'multipart/form-data'}
-	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':'','updateDescription':'大傻逼吗？'}
+	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':'','updateDescription':''}
 	print('\033[31m'+'uploading....'+'\033[0m')
 	try:
 		r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
@@ -35,7 +35,6 @@ def uploadToPgyer(ipaPath):
 def buildProject(ProjectName):
 	isBuilded = os.system('xcodebuild -project %s.xcodeproj -target %s -configuration Release' % (ProjectName, ProjectName));
 	fileName = ProjectName + getNowTime() + '.ipa'
-	print('fileName:'+fileName)
 	if isBuilded == 0:
 		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication ./build/Release-iphoneos/%s.app -o ~/Desktop/%s' % (ProjectName, fileName))	
 		if isPackaged == 0:
@@ -62,7 +61,7 @@ def cur_file_dir():
          return os.path.dirname(path)
 
 def getNowTime():
-	return time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+	return time.strftime('%Y-%m-%d-%H-%M-%S',time.localtime(time.time()))
 
 def main():
 	files = []
