@@ -44,7 +44,7 @@ def buildProject(ProjectName):
 			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
-			os.system('rm -rf ./build')
+	os.system('rm -rf ./build')
 
 def buildWorkspace():
 	print('buildWorkspace')
