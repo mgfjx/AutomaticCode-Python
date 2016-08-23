@@ -10,14 +10,19 @@ CONFIGURATION = "Release"
 SDK = "iphoneos"
 
 #configuration for 蒲公英
-AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
+AlowUploadToPgyer = 0 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
 API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
 App_Description = '' #上传app时的描述信息
 
-#上传到蒲公英代码托管
+#configuration for fir.im
+AlowUploadToFir = 1 #值为1表示上传到fir.im，为0亦然
+FirIm_BaseUrl = 'http://api.fir.im/apps'
+FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
+
+#上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
 	print('ipaPath:'+ipaPath)
 	files = {'file':open(ipaPath,'rb')}
@@ -44,6 +49,27 @@ def parserReturnData(jsonResult):
 		print ('\033[31m' + '上传失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
 		print(jsonResult)
 
+#上传到蒲公英代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
+
+#上传到fir.im代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
+def uploadToFir(ipaPath):
+	print('uploadToFir:' + ipaPath)
+	param = {'type' : 'ios', 'bundle_id' : 'com.xiexiaolong.test', 'api_token' : FirIm_API_Token}
+	try:
+		r = requests.post(FirIm_BaseUrl, data = param)
+		if r.status_code == 201:
+			result = r.json()
+			parserFirImData(result)
+		else:
+			print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
+	except :
+		print('\033[31m' + '请检查网络！' + '\033[0m')
+
+def parserFirImData(result):
+	print(result)
+
+#上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
+
 #打包.xcodeproj工程
 def buildProject(ProjectName):
 	isBuilded = os.system('xcodebuild -project %s.xcodeproj -target %s -configuration Release' % (ProjectName, ProjectName));
@@ -57,6 +83,8 @@ def buildProject(ProjectName):
 			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
+			if AlowUploadToFir == 1:
+				uploadToFir(ipaPath)
 	os.system('rm -rf ./build')
 
 #打包.xcworkspace工程
