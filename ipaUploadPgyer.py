@@ -13,15 +13,16 @@ SDK = "iphoneos"
 AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
-USER_KEY = "3834f11d73cd7d0e419734b68a539bf2"
-API_KEY = "700ffc367a1d86863d40370c3e95da66"
+USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
+API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
+App_Description = '' #上传app时的描述信息
 
 #上传到蒲公英代码托管
 def uploadToPgyer(ipaPath):
 	print('ipaPath:'+ipaPath)
 	files = {'file':open(ipaPath,'rb')}
 	headers = {'enctype':'multipart/form-data'}
-	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':'','updateDescription':''}
+	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':'','updateDescription':App_Description}
 	print('\033[31m'+'uploading....'+'\033[0m')
 	try:
 		r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
@@ -58,8 +59,21 @@ def buildProject(ProjectName):
 				uploadToPgyer(ipaPath)
 	os.system('rm -rf ./build')
 
-def buildWorkspace():
+#打包.xcworkspace工程
+def buildWorkspace(ProjectName):
 	print('buildWorkspace')
+	isBuilded = os.system('xcodebuild -workspace %s.xcworkspace -scheme %s -configuration Release' % (ProjectName, ProjectName));
+	fileName = ProjectName + getNowTime() + '.ipa'
+	if isBuilded == 0:
+		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication ./build/%s.app -o ~/Desktop/%s' % (ProjectName, fileName))	
+		if isPackaged == 0:
+			ipaPath = os.environ['HOME']
+			ipaPath = os.path.join(ipaPath, 'Desktop')
+			ipaPath = os.path.join(ipaPath, fileName)
+			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			if AlowUploadToPgyer == 1:
+				uploadToPgyer(ipaPath)
+	# os.system('rm -rf ./build')
 
 
 #获取脚本文件的当前路径
@@ -85,14 +99,14 @@ def main():
 	for name in files:
 		if name.endswith('.xcodeproj'):
 			options['project'] = str(name)
-		elif name.endswith('.workspace'):
+		elif name.endswith('.xcworkspace'):
 			options['workspace'] = name
 
-	# print(options)
+	print(options)
 
 	#若果存在workspace，则以workspace打包,否则判断project是否存在，存在即用project打包
 	if options['workspace'].strip() != '':
-		buildWorkspace()
+		buildWorkspace(options['workspace'].replace('.xcworkspace', ''))
 	elif options['project'].strip() != '':
 		buildProject(options['project'].replace('.xcodeproj', ''))
 	else:
