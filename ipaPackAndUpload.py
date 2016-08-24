@@ -54,19 +54,32 @@ def parserReturnData(jsonResult):
 #上传到fir.im代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToFir(ipaPath):
 	print('uploadToFir:' + ipaPath)
-	param = {'type' : 'ios', 'bundle_id' : 'com.xiexiaolong.test', 'api_token' : FirIm_API_Token}
+	param = {'type' : 'ios', 'bundle_id' : 'com.xiexiaolong.Hehe', 'api_token' : FirIm_API_Token}
 	try:
 		r = requests.post(FirIm_BaseUrl, data = param)
 		if r.status_code == 201:
 			result = r.json()
-			parserFirImData(result)
+			# print(result)
+			parserFirImData(result, ipaPath)
 		else:
 			print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
 	except :
 		print('\033[31m' + '请检查网络！' + '\033[0m')
 
-def parserFirImData(result):
-	print(result)
+def parserFirImData(result, ipaPath):
+	# print(result)
+	binary = result['cert']['binary']
+	app_upload_url = binary['upload_url']
+	files = {'file':open(ipaPath,'rb')}
+	param = {'Key':binary['key'], 'token':binary['token'], 'x:name':'', 'x:version':'', 'x:build':'', 'x:release_type':'', 'x:changelog':''}
+	print(app_upload_url)
+	r = requests.post(app_upload_url, data = param, files = files)
+	print(r)
+	# if r.status_code == 201:
+	# 	result = r.json()
+	# 	print(result)
+	# else:
+	# 	print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
 
 #上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,11 +102,13 @@ def buildProject(ProjectName):
 
 #打包.xcworkspace工程
 def buildWorkspace(ProjectName):
-	print('buildWorkspace')
-	isBuilded = os.system('xcodebuild -workspace %s.xcworkspace -scheme %s -configuration Release' % (ProjectName, ProjectName));
+	#xcodebuild  -workspace $projectName.xcworkspace -scheme $projectName  -configuration $buildConfig clean build SYMROOT=$buildAppToDir
+	outPutDir = os.path.join(cur_file_dir(),'build')#确保编译输出路径是完整路径编译才不会报错
+	buildCmd = 'xcodebuild -workspace %s.xcworkspace -scheme %s -configuration %s CONFIGURATION_BUILD_DIR=%s' % (ProjectName, ProjectName, CONFIGURATION, outPutDir)
+	isBuilded = os.system(buildCmd);
 	fileName = ProjectName + getNowTime() + '.ipa'
 	if isBuilded == 0:
-		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication ./build/%s.app -o ~/Desktop/%s' % (ProjectName, fileName))	
+		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication /private/tmp/%s.dst/Applications/%s.app -o ~/Desktop/%s' % (ProjectName, ProjectName, fileName))	
 		if isPackaged == 0:
 			ipaPath = os.environ['HOME']
 			ipaPath = os.path.join(ipaPath, 'Desktop')
@@ -101,7 +116,7 @@ def buildWorkspace(ProjectName):
 			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
-	# os.system('rm -rf ./build')
+	os.system('rm -rf ./build')
 
 
 #获取脚本文件的当前路径
