@@ -15,20 +15,21 @@ UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
 API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
-App_Description = '' #上传app时的描述信息
+PGY_Description = '' #上传app时的描述信息
+PGY_Password = '' #安装应用时的密码
 
 #configuration for fir.im
-AlowUploadToFir = 1 #值为1表示上传到fir.im，为0亦然
+#上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装青岛：
+AlowUploadToFir = 0 #值为1表示上传到fir.im，为0亦然
 FirIm_BaseUrl = 'http://api.fir.im/apps'
 FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
 
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
-	print('ipaPath:'+ipaPath)
 	files = {'file':open(ipaPath,'rb')}
 	headers = {'enctype':'multipart/form-data'}
-	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':'','updateDescription':App_Description}
-	print('\033[31m'+'uploading....'+'\033[0m')
+	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':PGY_Password,'updateDescription':PGY_Description}
+	print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
 	try:
 		r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
 		if r.status_code == requests.codes.ok:
@@ -44,43 +45,23 @@ def parserReturnData(jsonResult):
 	resultCode = jsonResult['code']
 	if resultCode == 0:
 		downUrl = BASE_URL + '/' + jsonResult['data']['appShortcutUrl']
-		print('\033[32m' + '上传完成,下载地址:' + downUrl + '\033[0m')
+		print('\033[32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
 	else:
-		print ('\033[31m' + '上传失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
+		print ('\033[31m' + '上传到蒲公英失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
 		print(jsonResult)
 
 #上传到蒲公英代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #上传到fir.im代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToFir(ipaPath):
-	print('uploadToFir:' + ipaPath)
-	param = {'type' : 'ios', 'bundle_id' : 'com.xiexiaolong.Hehe', 'api_token' : FirIm_API_Token}
-	try:
-		r = requests.post(FirIm_BaseUrl, data = param)
-		if r.status_code == 201:
-			result = r.json()
-			# print(result)
-			parserFirImData(result, ipaPath)
-		else:
-			print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
-	except :
-		print('\033[31m' + '请检查网络！' + '\033[0m')
-
-def parserFirImData(result, ipaPath):
-	# print(result)
-	binary = result['cert']['binary']
-	app_upload_url = binary['upload_url']
-	files = {'file':open(ipaPath,'rb')}
-	param = {'Key':binary['key'], 'token':binary['token'], 'x:name':'', 'x:version':'', 'x:build':'', 'x:release_type':'', 'x:changelog':''}
-	print(app_upload_url)
-	r = requests.post(app_upload_url, data = param, files = files)
-	print(r)
-	# if r.status_code == 201:
-	# 	result = r.json()
-	# 	print(result)
-	# else:
-	# 	print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
-
+	uploadCmd = 'fir publish %s --token==%s' %(ipaPath,FirIm_API_Token)
+	print(uploadCmd)
+	print('\033[31m'+'uploading To fir.im....'+'\033[0m')
+	isUploaded = os.system(uploadCmd)
+	if isUploaded == 0:
+		print('\033[32m' + '上传到fir.im完成,下载地址:' + '\033[0m')
+	else:
+		print ('\033[31m' + '上传到fir.im失败!' + '\033[0m')
 #上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #打包.xcodeproj工程
@@ -103,12 +84,12 @@ def buildProject(ProjectName):
 #打包.xcworkspace工程
 def buildWorkspace(ProjectName):
 	#xcodebuild  -workspace $projectName.xcworkspace -scheme $projectName  -configuration $buildConfig clean build SYMROOT=$buildAppToDir
-	outPutDir = os.path.join(cur_file_dir(),'build')#确保编译输出路径是完整路径编译才不会报错
-	buildCmd = 'xcodebuild -workspace %s.xcworkspace -scheme %s -configuration %s CONFIGURATION_BUILD_DIR=%s' % (ProjectName, ProjectName, CONFIGURATION, outPutDir)
+	buildDir = os.path.join(cur_file_dir(),'build')#确保编译输出路径是完整路径编译才不会报错
+	buildCmd = 'xcodebuild -workspace %s.xcworkspace -scheme %s -configuration %s CONFIGURATION_BUILD_DIR=%s' % (ProjectName, ProjectName, CONFIGURATION, buildDir)
 	isBuilded = os.system(buildCmd);
 	fileName = ProjectName + getNowTime() + '.ipa'
 	if isBuilded == 0:
-		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication /private/tmp/%s.dst/Applications/%s.app -o ~/Desktop/%s' % (ProjectName, ProjectName, fileName))	
+		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication %s/%s.app -o ~/Desktop/%s' % (buildDir, ProjectName, fileName))	
 		if isPackaged == 0:
 			ipaPath = os.environ['HOME']
 			ipaPath = os.path.join(ipaPath, 'Desktop')
@@ -116,7 +97,9 @@ def buildWorkspace(ProjectName):
 			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
-	os.system('rm -rf ./build')
+			if AlowUploadToFir == 1:
+				uploadToFir(ipaPath)
+	# os.system('rm -rf ./build')
 
 
 #获取脚本文件的当前路径
