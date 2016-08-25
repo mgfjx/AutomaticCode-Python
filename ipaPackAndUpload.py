@@ -15,12 +15,12 @@ UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
 API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
-PGY_Description = '教师版这是一段测试文字' #上传app时的描述信息
+PGY_Description = '' #上传app时的描述信息
 PGY_Password = '' #安装应用时的密码
 PGY_Upload_Method = 0 #0为命令行方式上传，1为post请求方式上传
 
 #configuration for fir.im
-#上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装青岛：
+#上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装请到：https://github.com/FIRHQ/fir-cli/blob/master/README.md
 AlowUploadToFir = 0 #值为1表示上传到fir.im，为0亦然
 FirIm_BaseUrl = 'http://api.fir.im/apps'
 FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
@@ -42,7 +42,7 @@ def uploadToPgyer_Cmd(ipaPath):
 	returnJson = json.loads(text)
 	downUrl = returnJson['data']['appShortcutUrl']
 	if not downUrl == '':
-		print('\033[32m' + '上传到蒲公英完成,下载地址:' + BASE_URL + '/' + downUrl + '\033[0m')
+		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + BASE_URL + '/' + downUrl + '\033[0m')
 	elif text == '':
 		print ('\033[31m' + '上传到蒲公英失败!' + '\033[0m')
 
@@ -67,7 +67,7 @@ def parserReturnData(jsonResult):
 	resultCode = jsonResult['code']
 	if resultCode == 0:
 		downUrl = BASE_URL + '/' + jsonResult['data']['appShortcutUrl']
-		print('\033[32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
+		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
 	else:
 		print ('\033[31m' + '上传到蒲公英失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
 		print(jsonResult)
@@ -89,6 +89,8 @@ def uploadToFir(ipaPath):
 	# 	print ('\033[31m' + '上传到fir.im失败!' + '\033[0m')
 #上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+#编译工程，begin--------------------------------------------------------------------------------------------------------------------------------------------------------
 #打包.xcodeproj工程
 def buildProject(ProjectName):
 	isBuilded = os.system('xcodebuild -project %s.xcodeproj -target %s -configuration Release' % (ProjectName, ProjectName));
@@ -99,7 +101,7 @@ def buildProject(ProjectName):
 			ipaPath = os.environ['HOME']
 			ipaPath = os.path.join(ipaPath, 'Desktop')
 			ipaPath = os.path.join(ipaPath, fileName)
-			print('\033[4;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			print('\033[7;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
 			if AlowUploadToFir == 1:
@@ -119,13 +121,13 @@ def buildWorkspace(ProjectName):
 			ipaPath = os.environ['HOME']
 			ipaPath = os.path.join(ipaPath, 'Desktop')
 			ipaPath = os.path.join(ipaPath, fileName)
-			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			print('\033[7;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
 			if AlowUploadToFir == 1:
 				uploadToFir(ipaPath)
-	# os.system('rm -rf ./build')
-
+	os.system('rm -rf ./build')
+#编译工程，end--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #获取脚本文件的当前路径
 def cur_file_dir():
