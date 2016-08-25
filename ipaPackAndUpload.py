@@ -10,13 +10,14 @@ CONFIGURATION = "Release"
 SDK = "iphoneos"
 
 #configuration for 蒲公英
-AlowUploadToPgyer = 0 #值为1表示上传到蒲公英，为0亦然
+AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
 API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
-PGY_Description = '' #上传app时的描述信息
+PGY_Description = '教师版这是一段测试文字' #上传app时的描述信息
 PGY_Password = '' #安装应用时的密码
+PGY_Upload_Method = 0 #0为命令行方式上传，1为post请求方式上传
 
 #configuration for fir.im
 #上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装青岛：
@@ -26,19 +27,40 @@ FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
 
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
-	files = {'file':open(ipaPath,'rb')}
-	headers = {'enctype':'multipart/form-data'}
-	payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':PGY_Password,'updateDescription':PGY_Description}
+	if PGY_Upload_Method == 0:
+		uploadToPgyer_Cmd(ipaPath)
+	elif PGY_Upload_Method == 1:
+		uploadToPgyer_Request(ipaPath)
+
+def uploadToPgyer_Cmd(ipaPath):
 	print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
-	try:
-		r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
-		if r.status_code == requests.codes.ok:
-			result = r.json()
-			parserReturnData(result)
-		else:
-			print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
-	except :
-		print('\033[31m' + '请检查网络！' + '\033[0m')
+	cmdStr = 'curl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" -F "publishRange=3" -F "isPublishToPublic=2" -F "password=%s" -F "updateDescription=%s" -F "enctype=multipart/form-data" %s' % (ipaPath, USER_KEY, API_KEY, PGY_Password, PGY_Description, UPLOAD_URL)
+	# print(cmdStr)
+	r = os.popen(cmdStr)
+	text = r.read()
+	r.close();
+	returnJson = json.loads(text)
+	downUrl = returnJson['data']['appShortcutUrl']
+	if not downUrl == '':
+		print('\033[32m' + '上传到蒲公英完成,下载地址:' + BASE_URL + '/' + downUrl + '\033[0m')
+	elif text == '':
+		print ('\033[31m' + '上传到蒲公英失败!' + '\033[0m')
+
+def uploadToPgyer_Request(ipaPath):
+	with open(ipaPath, 'rb') as f:
+		files = {'file': f}
+		headers = {'enctype':'multipart/form-data'}
+		payload = {'uKey':USER_KEY,'_api_key':API_KEY,'publishRange':'3','isPublishToPublic':'2','password':PGY_Password,'updateDescription':PGY_Description}
+		print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
+		try:
+			r = requests.post(UPLOAD_URL, data = payload, files = files, headers = headers)
+			if r.status_code == requests.codes.ok:
+				result = r.json()
+				parserReturnData(result)
+			else:
+				print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
+		except :
+			print('\033[31m' + '请检查网络！' + '\033[0m')
 
 #解析上传返回数据
 def parserReturnData(jsonResult):
@@ -57,11 +79,14 @@ def uploadToFir(ipaPath):
 	uploadCmd = 'fir publish %s --token==%s' %(ipaPath,FirIm_API_Token)
 	print(uploadCmd)
 	print('\033[31m'+'uploading To fir.im....'+'\033[0m')
-	isUploaded = os.system(uploadCmd)
-	if isUploaded == 0:
-		print('\033[32m' + '上传到fir.im完成,下载地址:' + '\033[0m')
-	else:
-		print ('\033[31m' + '上传到fir.im失败!' + '\033[0m')
+	isUploaded = os.popen(uploadCmd)
+	text = isUploaded.read()
+	isUploaded.close()
+	print(text)
+	# if isUploaded == 0:
+	# 	print('\033[32m' + '上传到fir.im完成,下载地址:' + '\033[0m')
+	# else:
+	# 	print ('\033[31m' + '上传到fir.im失败!' + '\033[0m')
 #上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #打包.xcodeproj工程
@@ -74,7 +99,7 @@ def buildProject(ProjectName):
 			ipaPath = os.environ['HOME']
 			ipaPath = os.path.join(ipaPath, 'Desktop')
 			ipaPath = os.path.join(ipaPath, fileName)
-			print('\033[32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			print('\033[4;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
 			if AlowUploadToFir == 1:
