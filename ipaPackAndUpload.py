@@ -39,12 +39,12 @@ def uploadToPgyer_Cmd(ipaPath):
 	r = os.popen(cmdStr)
 	text = r.read()
 	r.close();
-	returnJson = json.loads(text)
-	downUrl = returnJson['data']['appShortcutUrl']
-	if not downUrl == '':
-		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + BASE_URL + '/' + downUrl + '\033[0m')
+	if not text == '':
+		returnJson = json.loads(text)
+		downUrl = BASE_URL + '/' + returnJson['data']['appShortcutUrl']
+		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
 	elif text == '':
-		print ('\033[31m' + '上传到蒲公英失败!' + '\033[0m')
+		print ('\033[5;31m' + '上传到蒲公英失败!' + '\033[0m')
 
 def uploadToPgyer_Request(ipaPath):
 	with open(ipaPath, 'rb') as f:
@@ -58,9 +58,9 @@ def uploadToPgyer_Request(ipaPath):
 				result = r.json()
 				parserReturnData(result)
 			else:
-				print('\033[31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
+				print('\033[5;31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
 		except :
-			print('\033[31m' + '请检查网络！' + '\033[0m')
+			print('\033[5;31m' + '请检查网络！' + '\033[0m')
 
 #解析上传返回数据
 def parserReturnData(jsonResult):
