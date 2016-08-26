@@ -155,7 +155,7 @@ def main():
 		elif name.endswith('.xcworkspace'):
 			options['workspace'] = name
 
-	print(options)
+	# print(options)
 
 	#若果存在workspace，则以workspace打包,否则判断project是否存在，存在即用project打包
 	if options['workspace'].strip() != '':
