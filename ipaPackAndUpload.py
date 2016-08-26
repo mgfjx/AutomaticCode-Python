@@ -27,14 +27,15 @@ FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
 
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
-	if PGY_Upload_Method == 0:
-		uploadToPgyer_Cmd(ipaPath)
-	elif PGY_Upload_Method == 1:
+
+	isSuccess = uploadToPgyer_Cmd(ipaPath)
+	if not isSuccess:
+		print ('\033[31m' + '重新上传.....' + '\033[0m')
 		uploadToPgyer_Request(ipaPath)
 
 def uploadToPgyer_Cmd(ipaPath):
 	print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
-	cmdStr = 'curl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" -F "publishRange=3" -F "isPublishToPublic=2" -F "password=%s" -F "updateDescription=%s" -F "enctype=multipart/form-data" %s' % (ipaPath, USER_KEY, API_KEY, PGY_Password, PGY_Description, UPLOAD_URL)
+	cmdStr = 'acurl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" -F "publishRange=3" -F "isPublishToPublic=2" -F "password=%s" -F "updateDescription=%s" -F "enctype=multipart/form-data" %s' % (ipaPath, USER_KEY, API_KEY, PGY_Password, PGY_Description, UPLOAD_URL)
 	# print(cmdStr)
 	r = os.popen(cmdStr)
 	text = r.read()
@@ -43,8 +44,10 @@ def uploadToPgyer_Cmd(ipaPath):
 		returnJson = json.loads(text)
 		downUrl = BASE_URL + '/' + returnJson['data']['appShortcutUrl']
 		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
+		return True;
 	elif text == '':
 		print ('\033[5;31m' + '上传到蒲公英失败!' + '\033[0m')
+		return False;
 
 def uploadToPgyer_Request(ipaPath):
 	with open(ipaPath, 'rb') as f:
@@ -57,10 +60,13 @@ def uploadToPgyer_Request(ipaPath):
 			if r.status_code == requests.codes.ok:
 				result = r.json()
 				parserReturnData(result)
+				return True;
 			else:
 				print('\033[5;31m' + 'HTTPError,Code:'+r.status_code + '\033[0m')
+				return False;
 		except :
 			print('\033[5;31m' + '请检查网络！' + '\033[0m')
+			return False;
 
 #解析上传返回数据
 def parserReturnData(jsonResult):
