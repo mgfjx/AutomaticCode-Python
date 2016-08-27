@@ -10,20 +10,20 @@ CONFIGURATION = "Release"
 SDK = "iphoneos"
 
 #configuration for 蒲公英
-AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
+AlowUploadToPgyer = 0 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
 API_KEY = "700ffc367a1d86863d40370c3e95da66" #蒲公英API Key
 PGY_Description = '' #上传app时的描述信息
 PGY_Password = '' #安装应用时的密码
-PGY_Upload_Method = 0 #0为命令行方式上传，1为post请求方式上传
 
 #configuration for fir.im
 #上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装请到：https://github.com/FIRHQ/fir-cli/blob/master/README.md
-AlowUploadToFir = 0 #值为1表示上传到fir.im，为0亦然
+AlowUploadToFir = 1 #值为1表示上传到fir.im，为0亦然
 FirIm_BaseUrl = 'http://api.fir.im/apps'
 FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
+ChangeLog = 'worinimaa' #更新日志
 
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
@@ -35,7 +35,7 @@ def uploadToPgyer(ipaPath):
 
 def uploadToPgyer_Cmd(ipaPath):
 	print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
-	cmdStr = 'acurl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" -F "publishRange=3" -F "isPublishToPublic=2" -F "password=%s" -F "updateDescription=%s" -F "enctype=multipart/form-data" %s' % (ipaPath, USER_KEY, API_KEY, PGY_Password, PGY_Description, UPLOAD_URL)
+	cmdStr = 'curl -F "file=@%s" -F "uKey=%s" -F "_api_key=%s" -F "publishRange=3" -F "isPublishToPublic=2" -F "password=%s" -F "updateDescription=%s" -F "enctype=multipart/form-data" %s' % (ipaPath, USER_KEY, API_KEY, PGY_Password, PGY_Description, UPLOAD_URL)
 	# print(cmdStr)
 	r = os.popen(cmdStr)
 	text = r.read()
@@ -82,17 +82,40 @@ def parserReturnData(jsonResult):
 
 #上传到fir.im代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToFir(ipaPath):
-	uploadCmd = 'fir publish %s --token==%s' %(ipaPath,FirIm_API_Token)
+	uploadToFir_Cmd(ipaPath)
+	# uploadToFir_Request(ipaPath)
+
+def uploadToFir_Cmd(ipaPath):
+	print('uploadToFir_Cmd')
+	uploadCmd = 'fir publish %s --token=%s --changelog=%s' %(ipaPath,FirIm_API_Token,ChangeLog)
 	print(uploadCmd)
 	print('\033[31m'+'uploading To fir.im....'+'\033[0m')
-	isUploaded = os.popen(uploadCmd)
-	text = isUploaded.read()
-	isUploaded.close()
-	print(text)
-	# if isUploaded == 0:
-	# 	print('\033[32m' + '上传到fir.im完成,下载地址:' + '\033[0m')
-	# else:
-	# 	print ('\033[31m' + '上传到fir.im失败!' + '\033[0m')
+	isUploaded = os.system(uploadCmd)
+	if isUploaded == 0:
+		print('\033[7;32m' + '上传到fir.im完成!' + '\033[0m')
+	else:
+		print ('\033[7;31m' + '上传到fir.im失败!' + '\033[0m')
+
+def uploadToFir_Request(ipaPath):
+	print('uploadToFir_Request')
+
+	with open(ipaPath, 'rb') as f:
+		param = {'type':'ios', 'bundle_id':'com.xiexiaolong.test', 'api_token':FirIm_API_Token}
+		returnData = requests.post(FirIm_BaseUrl, data = param)
+		if returnData.status_code == 201:
+			jsonDict = returnData.json()
+			binary = jsonDict['cert']['binary']
+
+			cmd = 'curl -F "key=%s" -F "token=%s" -F "file=@%s" -F "x:name=%s" -F "x:version=%s" -F "x:build=1" -F "x:release_type=Adhoc" -F "type=ios" -F "x:changelog=%s" %s' % (binary['key'], binary['token'], ipaPath, 'test', '1.0', ChangeLog, binary['upload_url'])
+			r = os.popen(cmd)
+
+			# headers = {'Content-Type':'multipart/form-data'}
+			# uploadParam = {'key':binary['key'], 'token':binary['token'], 'x:name':'test', 'x:version':'1.0', 'x:build':'1', 'x:release_type':'Adhoc', 'x:changelog':'x:changelog'}
+			# print(uploadParam)
+			# r = requests.post(binary['upload_url'], data = uploadParam, files = f, headers = headers)
+			# print(r.json())
+
+
 #上传到fir.im代码托管,end-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
