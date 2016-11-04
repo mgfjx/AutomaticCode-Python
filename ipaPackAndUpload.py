@@ -4,13 +4,16 @@ import subprocess
 import requests
 import time
 import json
+import webbrowser
 
 #configuration for iOS build setting
 CONFIGURATION = "Release"
 SDK = "iphoneos"
 
+OpenDownLoadUrl = 1 #打包上传完成后是否使用浏览器打开下载地址: 1 打开， 0 不打开
+
 #configuration for 蒲公英
-AlowUploadToPgyer = 0 #值为1表示上传到蒲公英，为0亦然
+AlowUploadToPgyer = 1 #值为1表示上传到蒲公英，为0亦然
 UPLOAD_URL = "http://www.pgyer.com/apiv1/app/upload"
 BASE_URL = "http://www.pgyer.com"
 USER_KEY = "3834f11d73cd7d0e419734b68a539bf2" #蒲公英User Key(在账户设置中获取)
@@ -20,7 +23,7 @@ PGY_Password = '' #安装应用时的密码
 
 #configuration for fir.im
 #上传至fir.im使用的是命令行上传，需要安装fir命令，具体安装请到：https://github.com/FIRHQ/fir-cli/blob/master/README.md
-AlowUploadToFir = 1 #值为1表示上传到fir.im，为0亦然
+AlowUploadToFir = 0 #值为1表示上传到fir.im，为0亦然
 FirIm_BaseUrl = 'http://api.fir.im/apps'
 FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
 ChangeLog = 'worinimaa' #更新日志
@@ -44,6 +47,8 @@ def uploadToPgyer_Cmd(ipaPath):
 		returnJson = json.loads(text)
 		downUrl = BASE_URL + '/' + returnJson['data']['appShortcutUrl']
 		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
+		if OpenDownLoadUrl == 1:
+			webbrowser.open(downUrl)
 		return True;
 	elif text == '':
 		print ('\033[5;31m' + '上传到蒲公英失败!' + '\033[0m')
@@ -74,6 +79,8 @@ def parserReturnData(jsonResult):
 	if resultCode == 0:
 		downUrl = BASE_URL + '/' + jsonResult['data']['appShortcutUrl']
 		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
+		if OpenDownLoadUrl == 1:
+			webbrowser.open(downUrl)
 	else:
 		print ('\033[31m' + '上传到蒲公英失败!' + 'Reason:'+jsonResult['message'] + '\033[0m')
 		print(jsonResult)
