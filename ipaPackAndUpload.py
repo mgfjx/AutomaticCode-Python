@@ -31,10 +31,8 @@ ChangeLog = 'worinimaa' #更新日志
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
 
-	isSuccess = uploadToPgyer_Cmd(ipaPath)
-	if not isSuccess:
+	while not uploadToPgyer_Cmd(ipaPath):
 		print ('\033[31m' + '重新上传.....' + '\033[0m')
-		uploadToPgyer_Request(ipaPath)
 
 def uploadToPgyer_Cmd(ipaPath):
 	print('\033[31m'+'uploading To 蒲公英....'+'\033[0m')
