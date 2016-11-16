@@ -136,11 +136,11 @@ def buildProject(ProjectName):
 			ipaPath = os.path.join(ipaPath, 'Desktop')
 			ipaPath = os.path.join(ipaPath, fileName)
 			print('\033[7;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			os.system('rm -rf ./build')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
 			if AlowUploadToFir == 1:
 				uploadToFir(ipaPath)
-	os.system('rm -rf ./build')
 
 #打包.xcworkspace工程
 def buildWorkspace(ProjectName):
@@ -156,11 +156,11 @@ def buildWorkspace(ProjectName):
 			ipaPath = os.path.join(ipaPath, 'Desktop')
 			ipaPath = os.path.join(ipaPath, fileName)
 			print('\033[7;32m' + '打包完成,请到%s获取ipa文件'%ipaPath + '\033[0m')
+			os.system('rm -rf ./build')
 			if AlowUploadToPgyer == 1:
 				uploadToPgyer(ipaPath)
 			if AlowUploadToFir == 1:
 				uploadToFir(ipaPath)
-	os.system('rm -rf ./build')
 #编译工程，end--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #获取脚本文件的当前路径
