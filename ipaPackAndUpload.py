@@ -44,9 +44,10 @@ def uploadToPgyer_Cmd(ipaPath):
 	if not text == '':
 		returnJson = json.loads(text)
 		downUrl = BASE_URL + '/' + returnJson['data']['appShortcutUrl']
-		print('\033[7;32m' + '上传到蒲公英完成,下载地址:' + downUrl + '\033[0m')
+		downUrl = downUrl.encode('utf8') # 解决python2.7.10编码错误问题
+		print('\033[7;32m' + '上传到蒲公英完成,下载地址:%s'%downUrl + '\033[0m')
 		if OpenDownLoadUrl == 1:
-			webbrowser.open(downUrl)
+			webbrowser.open(downUrl.decode('utf8'))
 		return True;
 	elif text == '':
 		print ('\033[5;31m' + '上传到蒲公英失败!' + '\033[0m')
