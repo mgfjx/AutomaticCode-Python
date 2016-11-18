@@ -10,6 +10,10 @@ outPutPath = os.path.expanduser('~') + '/Desktop/AppIcon/'
 if not os.path.exists(outPutPath):
     os.mkdir(outPutPath)
 
+if len(sys.argv) <= 1:
+    print ('\033[31m' + '请输入图片路径,eg: python autoExportAppIcon.py /path/xxx.png' + '\033[0m')
+    quit()
+
 ImageName = sys.argv[1]
 # print('图片名字为：' + ImageName)
 originImg = Image.open(ImageName)
