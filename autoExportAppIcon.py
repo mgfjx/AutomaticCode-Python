@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-from PIL import Image
+try:
+    from PIL import Image
+except:
+    print ('\033[31m' + '缺少Image模块，请在终端执行：python -m pip install Image' + '\033[0m')
+    quit()
+
 import sys
 import os
 

@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 import os,sys
 import subprocess
-import requests
 import time
 import json
 import webbrowser
+
+try:
+    import requests
+except:
+    print ('\033[31m' + '缺少requests模块，请在终端执行：python -m pip install requests' + '\033[0m')
+    quit()
 
 #configuration for iOS build setting
 CONFIGURATION = "Release"
