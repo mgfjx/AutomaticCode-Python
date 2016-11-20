@@ -27,7 +27,12 @@ if len(sys.argv) <= 1:
 
 ImageName = sys.argv[1]
 # print('图片名字为：' + ImageName)
-originImg = Image.open(ImageName)
+originImg = ''
+try:
+    originImg = Image.open(ImageName)
+except:
+    print ('\033[31m' + '\'' + ImageName + '\'' + '，该文件不存在或不是图片文件，请检查文件路径' + '\033[0m')
+    quit()
 
 # 20x20
 img0 = originImg.resize((20,20), Image.ANTIALIAS)
