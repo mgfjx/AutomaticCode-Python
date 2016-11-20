@@ -31,7 +31,7 @@ originImg = ''
 try:
     originImg = Image.open(ImageName)
 except:
-    print ('\033[31m' + '\'' + ImageName + '\'' + '，该文件不存在或不是图片文件，请检查文件路径' + '\033[0m')
+    print ('\033[31m' + '\'' + ImageName + '\'' + '，该文件不是图片文件，请检查文件路径.' + '\033[0m')
     quit()
 
 # 20x20
