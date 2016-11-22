@@ -5,18 +5,6 @@ import time
 import json
 import webbrowser
 
-try:
-    import requests
-except:
-    print ('\033[31m' + '缺少requests模块，正在安装requests模块，请等待...' + '\033[0m')
-    success = os.system('python -m pip install requests')
-    if success == 0:
-    	print('\033[7;32m' + 'requests模块安装成功.' + '\033[0m')
-    	import requests
-    else:
-    	print ('\033[31m' + 'requests安装失败，请手动在终端执行：\'python -m pip install requests\'重新安装.' + '\033[0m')
-    	quit()
-
 #configuration for iOS build setting
 CONFIGURATION = "Release"
 SDK = "iphoneos"
@@ -38,6 +26,18 @@ AlowUploadToFir = 0 #值为1表示上传到fir.im，为0亦然
 FirIm_BaseUrl = 'http://api.fir.im/apps'
 FirIm_API_Token = '2e42187f2685d81c28a87dccc546c2b1'
 ChangeLog = 'worinimaa' #更新日志
+
+try:
+    import requests
+except:
+    print ('\033[31m' + '缺少requests模块，正在安装requests模块，请等待...' + '\033[0m')
+    success = os.system('python -m pip install requests')
+    if success == 0:
+    	print('\033[7;32m' + 'requests模块安装成功.' + '\033[0m')
+    	import requests
+    else:
+    	print ('\033[31m' + 'requests安装失败，请手动在终端执行：\'python -m pip install requests\'重新安装.' + '\033[0m')
+    	quit()
 
 #上传到蒲公英代码托管,begin-----------------------------------------------------------------------------------------------------------------------------------------------
 def uploadToPgyer(ipaPath):
