@@ -56,13 +56,18 @@ class Xcodebuild(object):
             print ('\033[7;31m' + '归档失败,请检查证书配置.' + '\033[0m')
 
     def exportByZipApp(self):
-        payloadPath = os.path.join(self.outPutPath,'Payload')
+        payloadPath = 'Payload'
         appPath = os.path.join(self.archivePath,'Products/Applications/%s.app' % self.appName)
-        ipaPath = os.path.join(self.outPutPath,self.appName)
-        cmd = 'mkdir %s&&cp -r %s %s&&zip -r %s.ipa %s&& rm -rf %s' %(payloadPath, appPath, payloadPath, ipaPath, payloadPath, payloadPath)
+        ipaPath = self.appName
+        cmd = 'mkdir %s&&cp -r %s %s&&zip -r %s.ipa %s' %(payloadPath, appPath, payloadPath, ipaPath, payloadPath)
         print('cmd = ' + cmd)
         success = os.system(cmd)
         if success == 0:
+            os.system('mkdir %s' % self.outPutPath)
+            os.system('mv -i %s %s' % (self.archivePath, self.outPutPath))
+            os.system('mv -i %s %s' % (ipaPath+'.ipa', self.outPutPath))
+            os.system('rm -rf build')
+            os.system('rm -rf %s' % payloadPath)
             os.system('open ' + self.outPutPath)
             print('\033[7;32m' + '打包完成,请到%s获取ipa文件' % self.outPutPath + '\033[0m')
         else:
@@ -85,7 +90,7 @@ class Xcodebuild(object):
 
     def __archiveWithProject(self,name):
         self.outPutPath = self.getOutPutPath(name)
-        archivePath = os.path.join(self.outPutPath, name + '.xcarchive')
+        archivePath = name + '.xcarchive'
         self.archivePath = archivePath
         archiveCmd = 'xcodebuild archive -scheme %s -configuration "Release" -archivePath %s|tee archiveInfo.txt' % (name, archivePath)
         print(archiveCmd)
