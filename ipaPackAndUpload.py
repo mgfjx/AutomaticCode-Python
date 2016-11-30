@@ -159,7 +159,7 @@ def buildWorkspace(ProjectName):
 	#xcodebuild  -workspace $projectName.xcworkspace -scheme $projectName  -configuration $buildConfig clean build SYMROOT=$buildAppToDir
 	buildDir = os.path.join(cur_file_dir(),'build')#确保编译输出路径是完整路径编译才不会报错
 	buildCmd = 'xcodebuild -workspace %s.xcworkspace -scheme %s -configuration %s CONFIGURATION_BUILD_DIR=%s' % (ProjectName, ProjectName, CONFIGURATION, buildDir)
-	isBuilded = os.system(buildCmd);
+	isBuilded = os.system(buildCmd)
 	fileName = ProjectName + getNowTime() + '.ipa'
 	if isBuilded == 0:
 		isPackaged = os.system('xcrun -sdk iphoneos -v PackageApplication %s/%s.app -o ~/Desktop/%s' % (buildDir, ProjectName, fileName))	
