@@ -10,13 +10,18 @@ socket.setdefaulttimeout(3)
 
 def checkIPs(ip, port):
     url = 'http://www.baidu.com'
+    proxys = []
+    proxy_host = 'http://' + str(ip) + ':' + str(port)
+    proxy_temp = {"http":proxy_host}
+    proxys.append(proxy_temp)
     try:
-        res = urllib.urlopen(url, proxies=ip).read()
+        res = urllib.urlopen(url, proxies=proxy_temp).read()
         print('ip: %s 可用'%str(ip))
+        print(res)
         return True
     except Exception,e:
-        print('ip:' + str(ip))
-        print(e)
+        print('ip:' + str(ip) + '不可用')
+        # print(e)
         return False
 
 def getIPs(index=1):
@@ -46,4 +51,4 @@ def getIPs(index=1):
 
 for page in range(1,32):
     getIPs(page)
-    time.sleep(0.5)
+    # time.sleep(0.5)
