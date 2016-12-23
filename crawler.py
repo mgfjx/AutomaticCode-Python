@@ -50,7 +50,7 @@ def getQsbk(pageSize):
     #     print 'Value = ' + item.value
 
     # 设置ip代理
-    myproxies = ['112.25.222.170:8087']
+    myproxies = ['124.88.67.52:843','120.92.3.127:80','122.72.32.73:80','122.72.32.72:80','60.218.117.80:8118','223.244.40.174:8118','123.165.118.241:8118','121.204.165.72:8118','119.48.176.140:8118','125.118.147.179:808','120.77.169.244:8118','110.72.17.42:8123']
     proxy = random.choice(myproxies)
     proxy_support = urllib2.ProxyHandler({'http':proxy})
 
@@ -111,4 +111,4 @@ def getQsbk(pageSize):
 for page in range(1,36):
     print(str(page))
     getQsbk(page)
-    time.sleep(0.5)
+    # time.sleep(0.5)

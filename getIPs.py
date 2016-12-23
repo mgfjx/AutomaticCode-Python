@@ -6,21 +6,34 @@ import urllib2
 import BeautifulSoup
 import time
 import socket
-socket.setdefaulttimeout(3)
+import sqlite3
 
 def checkIPs(ip, port):
-    url = 'http://www.baidu.com'
-    proxys = []
-    proxy_host = 'http://' + str(ip) + ':' + str(port)
-    proxy_temp = {"http":proxy_host}
-    proxys.append(proxy_temp)
+    socket.setdefaulttimeout(3)
+    url = 'http://ip.chinaz.com/getip.aspx'
+    userAgent = 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0'
+    proxy_host = str(ip) + ':' + str(port)
+    req = urllib2.Request(url)
+    req.add_header('User-Agent',userAgent)
+
+    proxy_handler = urllib2.ProxyHandler({'http':proxy_host})
+    proxy_auth_handler = urllib2.ProxyBasicAuthHandler()
+    opener = urllib2.build_opener(proxy_handler, proxy_auth_handler)
+
+    opener.addheaders = [('User-Agent', userAgent)]
+
+    print(proxy_host)
     try:
-        res = urllib.urlopen(url, proxies=proxy_temp).read()
-        print('ip: %s 可用'%str(ip))
-        print(res)
+        response = opener.open(url)
+        response_data = response.read().decode('utf8')
+        soup = BeautifulSoup.BeautifulSoup(response_data)
+        content = soup.findAll('body')
+        f = open("./ips.txt", "a")
+        f.write(proxy_host + '\n')
+        print(content)
         return True
     except Exception,e:
-        print('ip:' + str(ip) + '不可用')
+        # print('ip:' + str(ip) + '不可用')
         # print(e)
         return False
 
@@ -36,19 +49,39 @@ def getIPs(index=1):
     soup = BeautifulSoup.BeautifulSoup(res)
     ips = soup.findAll('tr')
     # print(ips[1])
-    f = open("./ips.txt", "a")
 
     for x in range(1, len(ips)):
         ipModel = ips[x]
         tds = ipModel.findAll("td")
         ip = tds[1].contents[0]
         port = tds[2].contents[0]
-        checkIPs(ip,port)
+        # checkIPs(ip,port)
+        country = '中国'
+        address = tds[3].contents[1].contents[0]
+        print(address)
+        # sql = "INSERT INTO IpList (id, country, ip, port, address, type, time) VALUES  (1, %s, %s, %s, %s, %s, %s)" % ()
+        #
+        # conn = sqlite3.connect('ips.db')
+        # conn.execute(sql)
+        # conn.commit()
+        # conn.close()
 
-        # ip_temp = tds[1].contents[0] + "\t\t" + tds[2].contents[0] + "\n"
-        # print(ip_temp)
-        # f.write(ip_temp)
+def initDataBase():
+    conn = sqlite3.connect('ips.db')
+    print(conn)
 
-for page in range(1,32):
+    conn.execute('''CREATE TABLE IpList
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    country TEXT,
+                    ip TEXT,
+                    port TEXT,
+                    address TEXT,
+                    type TEXT,
+                    time TEXT)
+                    ''')
+    conn.close()
+
+# initDataBase()
+for page in range(1,3):
     getIPs(page)
-    # time.sleep(0.5)
+    time.sleep(0.5)
